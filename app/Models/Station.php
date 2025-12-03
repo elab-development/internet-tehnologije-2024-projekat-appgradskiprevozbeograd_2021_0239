@@ -13,7 +13,7 @@ class Station extends Model
 
     public function lines()
     {
-        return $this->hasMany(Line::class, 'line_station')
+        return $this->belongsToMany(Line::class, 'line_station')
             ->withPivot('stop_sequence', 'direction', 'distance_from_start')
             ->withTimestamps();
     }
