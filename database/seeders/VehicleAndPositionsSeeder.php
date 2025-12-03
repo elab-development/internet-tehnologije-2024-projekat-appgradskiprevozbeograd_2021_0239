@@ -54,8 +54,6 @@ class VehicleAndPositionsSeeder extends Seeder
                     'line_id' => $line->id,
                     'latitude' => $latitude,
                     'longitude' => $longitude,
-                    'speed' => 0,
-                    'bearing' => null,
                     'timestamp' => now(),
                 ]);
             }

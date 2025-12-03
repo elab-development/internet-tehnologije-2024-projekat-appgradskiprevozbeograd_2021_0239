@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class VehiclePosition extends Model
 {
-    protected $fillable = ['vehicle_id', 'line_id', 'latitude', 'longitude', 'speed', 'bearing', 'timestamp'];
+    protected $fillable = ['vehicle_id', 'line_id', 'latitude', 'longitude', 'timestamp'];
 
     public function vehicle(){
         return $this->belongsTo(Vehicle::class);

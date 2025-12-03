@@ -24,8 +24,6 @@ class VehiclePositionFactory extends Factory
             'line_id' => null,
             'latitude' => $this->faker->latitude(44.7, 44.9),
             'longitude' => $this->faker->longitude(20.25, 20.65),
-            'speed' => $this->faker->optional()->numberBetween(0, 50),
-            'bearing' => $this->faker->optional()->numberBetween(0, 360),
             'timestamp' => now(),
         ];
     }
