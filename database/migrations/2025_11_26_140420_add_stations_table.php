@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             $table->string('zone')->nullable();
-            $table->string('stop_code')->nullable();
+            $table->string('stop_code');
             $table->timestamps();
 
             $table->index(['latitude','longitude']);
