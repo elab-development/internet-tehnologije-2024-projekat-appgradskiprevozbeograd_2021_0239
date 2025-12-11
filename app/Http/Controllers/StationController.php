@@ -6,6 +6,7 @@ use App\Http\Resources\StationResource;
 use App\Http\Services\StationService;
 use App\Models\Station;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -41,17 +42,52 @@ class StationController extends Controller
      */
     public function store(Request $request)
     {
-        $validator=Validator::make($request->all(),[
-            'name'=>'required',
-            'latitude'=>'required|numeric',
-            'longitude'=>'required|numeric',
-            'stop_code'=>'required|numeric',
+        // 1. VALIDACIJA
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'stop_code' => 'required|numeric|unique:stations,stop_code', // Dodata provera jedinstvenosti
         ]);
-        if($validator->fails()){
-            return response()->json($validator->errors()->toJson(),400);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
         }
-        $station=$this->stationService->addStation($request->toArray());
-        return response()->json(['station'=>new StationResource($station),'message'=>"Station added successfully"],201);
+
+        $address = $request->input('address');
+        $apiKey = env('GOOGLE_MAPS_API_KEY');
+
+        try {
+            $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                'address' => $address,
+                'key' => $apiKey,
+            ]);
+
+            $data = $response->json();
+
+            if ($data['status'] !== 'OK' || empty($data['results'])) {
+                // Ako Geocoding ne uspe da pronađe adresu
+                return response()->json(['error' => 'Adresa nije validna ili nije pronađena. (Geocoding Status: ' . $data['status'] . ')'], 422);
+            }
+
+            $latitude = $data['results'][0]['geometry']['location']['lat'];
+            $longitude = $data['results'][0]['geometry']['location']['lng'];
+
+        } catch (\Exception $e) {
+            \Log::error('Google Maps Geocoding API Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Greška pri obradi adrese na serveru.'], 500);
+        }
+
+        // 3. PRIPREMA PODATAKA ZA ČUVANJE
+        $stationData = $request->toArray();
+        $stationData['latitude'] = $latitude;
+        $stationData['longitude'] = $longitude;
+
+        $station = $this->stationService->addStation($stationData);
+
+        return response()->json([
+            'station' => new StationResource($station),
+            'message' => "Station added successfully"
+        ], 201);
     }
 
     /**
