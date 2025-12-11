@@ -94,4 +94,12 @@ class VehicleController extends Controller
         return response()->json(['message' => 'Vehicle deleted successfully'], 200);
 
     }
+    public function getAllVehiclesForDriver( $userId)
+    {
+
+
+        $vehicles=Vehicle::where('user_id',$userId)->first();
+        return response()->json(['vehicles'=>new VehicleResource($vehicles), 'message' => 'Vehicles founded successfully'], 200);
+
+    }
 }

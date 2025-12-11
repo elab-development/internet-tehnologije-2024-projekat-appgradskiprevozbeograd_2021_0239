@@ -18,6 +18,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function () {
     Route::get("/me",[AuthController::class, 'me']);
 
+
+
     // --- Linije (Lines) ---
     Route::get('/line/{lineId}', [\App\Http\Controllers\LineController::class, 'show']);
     Route::get('/line/code/{code}', [\App\Http\Controllers\LineController::class, 'showLineByCode']);
@@ -66,7 +68,10 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get('/user/{userId}', [\App\Http\Controllers\UserController::class, 'show']);
 });
 Route::middleware(['auth:sanctum','role:admin,operator'])->group(function () {
+    Route::get("/vehicles/driver/{userId}",[\App\Http\Controllers\VehicleController::class, 'getAllVehiclesForDriver']);
 
+
+    Route::get("/vehicles/driver}",[\App\Http\Controllers\VehicleController::class, 'getAllVehiclesForDriver']);
     // --- Putovanja (Trips) ---
     Route::post("/trip/add-with-stops", [\App\Http\Controllers\TripController::class, 'storeWithStops']);
     Route::post("/trip/add", [\App\Http\Controllers\TripController::class, 'store']);
@@ -78,6 +83,7 @@ Route::middleware(['auth:sanctum','role:admin,operator'])->group(function () {
 });
 // Rute za UPRAVLJANJE i BRISANJE koje su dozvoljene samo ulogama: admin
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
+    Route::get("/operators", [\App\Http\Controllers\UserController::class, 'getAllOperators']);
 
     // --- Linije (Lines) ---
     Route::post('/line/add', [\App\Http\Controllers\LineController::class, 'store']);

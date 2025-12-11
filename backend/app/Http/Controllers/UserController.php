@@ -71,4 +71,8 @@ class UserController extends Controller
     {
         //
     }
+    public function getAllOperators(){
+        $operators=User::where('role_id',2)->get();
+        return response()->json(['operators'=>UserResource::collection($operators)],200);
+    }
 }

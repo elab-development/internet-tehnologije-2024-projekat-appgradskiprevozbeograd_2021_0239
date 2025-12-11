@@ -19,7 +19,8 @@ class VehicleResource extends JsonResource
             'vehicle_code' => $this->vehicle_code,
             'line' => $this->line,
             'active' => $this->active,
-            'positions'=>VehiclePositionResource::collection($this->positions)
+            'positions'=>VehiclePositionResource::collection($this->positions),
+            'user'=>new UserResource($this->user)
         ];
     }
 }
