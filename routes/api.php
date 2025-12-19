@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\TripStopController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("/trip/line/{lineId}", [\App\Http\Controllers\TripController::class, 'showTripsForLineId']);
     Route::get('/trip/status/{status}', [\App\Http\Controllers\TripController::class, 'showTripsForStatus']);
 
+
+    Route::post('/tripstop', [TripStopController::class, 'store']);
+    Route::get('/tripstop/{tripStopId}', [TripStopController::class, 'show']);
+    Route::put('/tripstop/{tripStop}', [TripStopController::class, 'update']);
+    Route::delete('/tripstop/{tripStop}', [TripStopController::class, 'destroy']);
+    Route::get('/station/{stationId}/tripstops', [TripStopController::class, 'getTripStopsForStation']);
+    Route::get('/station/{stationId}/tripstops/filter', [TripStopController::class, 'getTripStopsForStationForLine']);
 
 
 
