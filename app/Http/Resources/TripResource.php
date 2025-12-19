@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TripResoource extends JsonResource
+class TripResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,10 @@ class TripResoource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'trip_stops' => TripStopResource::collection($this->stops),
-            'stop_sequence' => $this->stop_sequence,
-            'eta' => $this->eta,
-            'actual_arrival' => $this->actual_arrival,
+            'trip_stops' => TripStopResource::collection($this->tripStops),
+            'line'=>new LineResource($this->line),
+            'scheduled_start_time'=>$this->scheduled_start_time,
+            'status'=>$this->status
         ];
     }
 }
