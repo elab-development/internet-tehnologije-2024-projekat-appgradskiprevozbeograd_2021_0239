@@ -32,7 +32,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("/station/address/{address}", [\App\Http\Controllers\StationController::class, 'showByAddress']);
     Route::get("/station/name/{name}", [\App\Http\Controllers\StationController::class, 'showByName']);
     Route::get("/station/search/{search}", [\App\Http\Controllers\StationController::class, 'searchStations']);
-
+    //trip routes
+    Route::post("/trip/add", [\App\Http\Controllers\TripController::class, 'store']);
+    Route::put("/trip/update/{trip}", [\App\Http\Controllers\TripController::class, 'update']);
+    Route::delete("/trip/delete/{trip}", [\App\Http\Controllers\TripController::class, 'destroy']);
+    Route::get("/trip/{tripId}", [\App\Http\Controllers\TripController::class, 'show']);
+    Route::get("/trip/line/{lineId}", [\App\Http\Controllers\TripController::class, 'showTripsForLineId']);
+    Route::get('/trip/status/{status}', [\App\Http\Controllers\TripController::class, 'showTripsForStatus']);
 
 
 
