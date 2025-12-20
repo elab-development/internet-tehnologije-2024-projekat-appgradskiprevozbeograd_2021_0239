@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\LineStationController;
 use App\Http\Controllers\TripStopController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,16 +41,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("/trip/{tripId}", [\App\Http\Controllers\TripController::class, 'show']);
     Route::get("/trip/line/{lineId}", [\App\Http\Controllers\TripController::class, 'showTripsForLineId']);
     Route::get('/trip/status/{status}', [\App\Http\Controllers\TripController::class, 'showTripsForStatus']);
+    Route::post("/trip/add-with-stops", [\App\Http\Controllers\TripController::class, 'storeWithStops']);
 
 
+    //tripstop routes
     Route::post('/tripstop', [TripStopController::class, 'store']);
     Route::get('/tripstop/{tripStopId}', [TripStopController::class, 'show']);
     Route::put('/tripstop/{tripStop}', [TripStopController::class, 'update']);
     Route::delete('/tripstop/{tripStop}', [TripStopController::class, 'destroy']);
-    Route::get('/station/{stationId}/tripstops', [TripStopController::class, 'getTripStopsForStation']);
-    Route::get('/station/{stationId}/tripstops/filter', [TripStopController::class, 'getTripStopsForStationForLine']);
+    Route::get('/tripstop/station/{stationId}', [TripStopController::class, 'getTripStopsForStation']);
+    Route::get('/tripstop/station/{stationId}/filter', [TripStopController::class, 'getTripStopsForStationForLine']);
 
 
+
+    //lineStations
+    Route::get('lines/{line}/stations', [LineStationController::class, 'index']);
+    Route::post('lines/{line}/stations', [LineStationController::class, 'store']);
+    Route::patch('lines/{line}/stations/{station}', [LineStationController::class, 'update']);
+    Route::delete('lines/{line}/stations/{station}', [LineStationController::class, 'destroy']);
+    Route::post('lines/{line}/stations/reorder', [LineStationController::class, 'reorder']);
 
 });
 

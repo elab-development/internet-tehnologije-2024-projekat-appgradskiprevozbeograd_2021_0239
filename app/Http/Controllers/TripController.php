@@ -14,7 +14,7 @@ class TripController extends Controller
 {
     protected TripService $tripService;
     protected LineService $lineService;
-    public function __construct(TripService $tripService){
+    public function __construct(TripService $tripService,LineService $lineService){
         $this->tripService = $tripService;
         $this->lineService = new LineService();
     }
@@ -115,4 +115,25 @@ class TripController extends Controller
         $deleted=$this->tripService->deleteTrip($trip);
         return response()->json(["message"=>"Trip deleted successfully"],200);
     }
+    public function storeWithStops(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'line_id' => 'required|exists:lines,id',
+            'service_date' => 'required|date',
+            'scheduled_start_time' => 'required',
+            'direction' => 'nullable|in:A,B', // opcionalno, default A
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $trip = $this->tripService->createTripWithStops($request->all());
+
+        return response()->json([
+            'trip' => $trip, // možeš koristiti TripResource ako želiš
+            'message' => 'Trip with stops created successfully'
+        ], 201);
+    }
+
 }

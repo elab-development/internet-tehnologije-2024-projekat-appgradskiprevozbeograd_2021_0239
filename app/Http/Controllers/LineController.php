@@ -20,8 +20,11 @@ class LineController extends Controller
      */
     public function index()
     {
-        $lines = Line::all();
-        return response()->json(["lines"=>LineResource::collection($lines),'message'=>"Lines founded successfully"],200);
+        $lines = Line::with(['stations' => function ($q) {
+            $q->orderBy('line_station.stop_sequence');
+        }])->get();
+
+        return response()->json(["lines" => LineResource::collection($lines), 'message' => "Lines founded successfully"], 200);
     }
 
     /**
@@ -54,13 +57,18 @@ class LineController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show( $lineId)
+    public function show($lineId)
     {
-        $line=$this->lineService->getLineById($lineId);
+        $line = $this->lineService->getLineById($lineId);
         if (is_null($line)) {
-            return response()->json(["message"=>"Line not found"],404);
+            return response()->json(["message" => "Line not found"], 404);
         }
-        return response()->json(["line"=>new LineResource($line),'message'=>"Line founded successfully"],200);
+
+        $line->load(['stations' => function ($q) {
+            $q->orderBy('line_station.stop_sequence');
+        }]);
+
+        return response()->json(["line" => new LineResource($line), 'message' => "Line founded successfully"], 200);
     }
     public function showLineByCode( $code)
     {
