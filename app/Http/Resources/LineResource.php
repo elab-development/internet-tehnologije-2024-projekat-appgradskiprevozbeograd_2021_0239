@@ -14,6 +14,12 @@ class LineResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $stations = $this->whenLoaded('stations')
+            ? $this->stations->sortBy(function ($s) {
+                return $s->pivot->stop_sequence ?? 0;
+            })->values()
+            : null;
+
         return [
             'id' => $this->id,
             'code' => $this->code,
@@ -21,8 +27,6 @@ class LineResource extends JsonResource
             'mode' => $this->mode,
             'color' => $this->color,
             'active' => $this->active,
-            'stations' => StationResource::collection(
-                $this->stations()->orderByPivot('stop_sequence')->get()
-            ),
-        ];    }
+            'stations' => $stations ? StationResource::collection($stations) : null,
+        ];  }
 }
