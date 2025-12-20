@@ -6,6 +6,7 @@ use App\Models\Roles;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class UserSeeder extends Seeder
 
         User::firstOrCreate(['email'=>'admin@example.com'], [
             'name' => 'Admin',
-            'password' => \Hash::make('password'),
+            'password' => Hash::make('password'),
             'role_id' => $adminRole->id,
             'email_verified_at' => now(),
         ]);

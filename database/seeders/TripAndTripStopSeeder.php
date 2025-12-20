@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Line;
 use App\Models\Trip;
 use App\Models\TripStop;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -19,7 +18,6 @@ class TripAndTripStopSeeder extends Seeder
         $lines = Line::all();
 
         foreach ($lines as $line) {
-            // Definišemo pravac, npr. 'A' za ovaj primer
             $direction = 'A';
 
             $trip = Trip::create([
@@ -30,7 +28,6 @@ class TripAndTripStopSeeder extends Seeder
                 'direction' => $direction,
             ]);
 
-            // Dohvat stanica linije u tom pravcu
             $stations = $line->stations()
                 ->withPivot(['stop_sequence', 'distance_from_start'])
                 ->wherePivot('direction', $direction)
@@ -38,9 +35,9 @@ class TripAndTripStopSeeder extends Seeder
                 ->get();
 
             $startTime = Carbon::parse($trip->scheduled_start_time);
-            $avgSpeedMPerS = 8.33; // primer brzine vozila
+            $avgSpeedMPerS = 8.33;
 
-            foreach ($stations as $station) {
+            foreach ($stations as $index => $station) {
                 $distance = $station->pivot->distance_from_start ?? 0;
                 $seconds = $avgSpeedMPerS > 0 ? (int)($distance / $avgSpeedMPerS) : 0;
                 $scheduledArrival = $startTime->copy()->addSeconds($seconds);
@@ -48,12 +45,12 @@ class TripAndTripStopSeeder extends Seeder
                 TripStop::create([
                     'trip_id' => $trip->id,
                     'station_id' => $station->id,
-                    'stop_sequence' => $station->pivot->stop_sequence ?? 1,
+                    'stop_sequence' => $station->pivot->stop_sequence ?? ($index + 1),
                     'scheduled_arrival' => $scheduledArrival,
-                    'scheduled_departure' => $scheduledArrival->copy()->addMinutes(0), // možeš dodati zadržavanje
-                    'distance_from_start' => $distance,
+                    'scheduled_departure' => $scheduledArrival->copy()->addMinutes(0),
                 ]);
             }
         }
     }
 }
+

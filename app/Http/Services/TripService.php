@@ -52,14 +52,14 @@ class TripService
                 'direction' => $data['direction'] ?? 'A',
             ]);
 
-            $line =Line::findOrFail($data['line_id']);
+            $line = Line::findOrFail($data['line_id']);
             $lineStations = $line->stations()
                 ->withPivot(['stop_sequence','distance_from_start'])
                 ->wherePivot('direction', $data['direction'])
                 ->orderBy('line_station.stop_sequence')
                 ->get();
 
-            $avgSpeedMPerS = 8.33; // primer: 30 km/h -> 8.33 m/s  (prilagodi)
+            $avgSpeedMPerS = 8.33; // primer: 30 km/h -> 8.33 m/s
             $startTime = Carbon::parse($data['scheduled_start_time']);
 
             foreach ($lineStations as $index => $station) {
@@ -72,14 +72,14 @@ class TripService
                     'station_id' => $station->id,
                     'stop_sequence' => $station->pivot->stop_sequence ?? ($index + 1),
                     'scheduled_arrival' => $scheduledArrival,
-                    'scheduled_departure' => $scheduledArrival->copy()->addMinutes(0),
-                    'distance_from_start' => $distance,
+                    'scheduled_departure' => $scheduledArrival->copy()->addMinutes(0), // možeš dodati zadržavanje
                 ]);
             }
 
             return $trip->load('tripStops');
         });
     }
+
 
 
 }
