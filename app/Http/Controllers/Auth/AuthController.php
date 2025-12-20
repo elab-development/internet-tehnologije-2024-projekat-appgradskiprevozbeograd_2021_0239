@@ -38,7 +38,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
         $user=User::where('email',$request->email)->first();
-        if(!$user||Hash::check($request->password,$user->password)){
+        if(!$user||!Hash::check($request->password,$user->password)){
             throw ValidationException::withMessages([
                 'email' => ['Neispravan email ili lozinka.'],
             ]);
@@ -47,8 +47,7 @@ class AuthController extends Controller
         return response()->json([
             'message'=>'User logged in successfully',
             'user'=>$user,
-            'access_token'=>$token,
-            'token_type'=>'Bearer'
+            'token'=>$token,
         ]);
     }
     /**
