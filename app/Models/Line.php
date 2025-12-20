@@ -11,6 +11,7 @@ class Line extends Model
     protected $fillable = ['code','name','mode','color','active'];
     public function stations(){
         return $this->belongsToMany(Station::class,'line_station')
+            ->using(\App\Models\LineStation::class)
             ->withPivot('stop_sequence','direction','distance_from_start')
             ->withTimestamps();
     }
