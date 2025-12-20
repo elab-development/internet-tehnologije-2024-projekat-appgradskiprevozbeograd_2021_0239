@@ -4,6 +4,8 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\LineStationController;
 use App\Http\Controllers\TripStopController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehiclePositionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,5 +63,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('lines/{line}/stations/{station}', [LineStationController::class, 'destroy']);
     Route::post('lines/{line}/stations/reorder', [LineStationController::class, 'reorder']);
 
+
+    // Vehicles
+    Route::get('/vehicles', [VehicleController::class, 'index']);
+    Route::get('/vehicles/{$vehicleId}', [VehicleController::class, 'show']);
+    Route::post('/vehicles', [VehicleController::class, 'store']);
+    Route::put('/vehicles/{vehicle}', [VehicleController::class, 'update']);
+    Route::delete('/vehicles/{vehicle}', [VehicleController::class, 'destroy']);
+
+// Vehicle positions
+    Route::post('/vehicle_positions', [VehiclePositionController::class, 'store']);
+    Route::get('/vehicle_positions/{positionId}', [VehiclePositionController::class, 'show']);
+    Route::put('/vehicle_positions/{vehiclePosition}', [VehiclePositionController::class, 'update']);
+    Route::delete('/vehicle_positions/{vehiclePosition}', [VehiclePositionController::class, 'destroy']);
+    Route::get('/vehicle_positions/latest/{vehicleId}', [VehiclePositionController::class, 'latest']);
+    Route::get('/vehicle_positions/vehicle/{vehicleId}', [VehiclePositionController::class, 'listForVehicle']);
+    Route::get('/vehicle_positions/line/{lineId}', [VehiclePositionController::class, 'vehiclesOnLine']);
 });
 
