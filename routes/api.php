@@ -16,6 +16,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 
 Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function () {
+    Route::get("/me",[AuthController::class, 'me']);
 
     // --- Linije (Lines) ---
     Route::get('/line/{lineId}', [\App\Http\Controllers\LineController::class, 'show']);
