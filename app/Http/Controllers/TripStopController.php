@@ -64,7 +64,7 @@ class TripStopController extends Controller
         return response()->json(['tripStop'=>new TripStopResource($tripStop)],200);
     }
 
-    protected function getTripStopsForStation($stationId)
+    public function getTripStopsForStation($stationId)
     {
         $station=$this->stationService->getStationById($stationId);
         if (is_null($station)){

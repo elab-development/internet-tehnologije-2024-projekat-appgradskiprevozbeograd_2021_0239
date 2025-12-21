@@ -21,7 +21,7 @@ class StationController extends Controller
     public function index()
     {
         $all=Station::paginate(5);
-        return response()->json(['data'=>StationResource::collection($all)],200);
+        return StationResource::collection($all);
     }
 
     /**

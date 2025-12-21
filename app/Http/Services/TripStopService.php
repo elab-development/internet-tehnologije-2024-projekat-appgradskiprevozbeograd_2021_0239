@@ -24,7 +24,7 @@ class TripStopService
     }
     public function getTripStopForStation($stationId):Collection
     {
-        $tripStops=TripStop::where('station_id',$stationId)->paginate(10);
+        $tripStops=TripStop::where('station_id',$stationId)->get();
         return $tripStops;
     }
     public function getTripStopsForStationForCode($stationId, $lineCode = null, $upcomingOnly = false, $perPage = 10)
