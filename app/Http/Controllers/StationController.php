@@ -23,6 +23,10 @@ class StationController extends Controller
         $all=Station::paginate(5);
         return StationResource::collection($all);
     }
+    public function allStations(){
+        $all=Station::all();
+        return StationResource::collection($all);
+    }
 
     /**
      * Show the form for creating a new resource.

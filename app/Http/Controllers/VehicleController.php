@@ -25,7 +25,8 @@ class VehicleController extends Controller
      */
     public function index()
     {
-        //
+        $vehicles = Vehicle::all();
+        return response()->json(['vehicles'=>VehicleResource::collection($vehicles), 'message' => 'Vehicles founded successfully'], 200);
     }
 
     /**

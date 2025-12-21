@@ -25,6 +25,7 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get("/line/mode/{mode}", [\App\Http\Controllers\LineController::class, 'showLinesByMode']);
     Route::get("/lines", [\App\Http\Controllers\LineController::class, 'index']);
 
+
     // --- Stanice (Stations) ---
     Route::get("/station/{stationid}", [\App\Http\Controllers\StationController::class, 'show']);
     Route::get("/station/code/{code}", [\App\Http\Controllers\StationController::class, 'showByCode']);
@@ -32,6 +33,8 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get("/station/name/{name}", [\App\Http\Controllers\StationController::class, 'showByName']);
     Route::get("/station/search/{search}", [\App\Http\Controllers\StationController::class, 'searchStations']);
     Route::get("/stations",[\App\Http\Controllers\StationController::class, 'index']);
+    Route::get("/stations/all",[\App\Http\Controllers\StationController::class, 'allStations']);
+
 
     // --- Putovanja (Trips) ---
     Route::get("/trip/{tripId}", [\App\Http\Controllers\TripController::class, 'show']);
@@ -58,7 +61,6 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     // --- Pozicije vozila (VehiclePositions) ---
     Route::get('/vehicle_positions/latest/{vehicleId}', [VehiclePositionController::class, 'latest']);
     Route::get('/vehicle_positions/vehicle/{vehicleId}', [VehiclePositionController::class, 'listForVehicle']);
-    Route::get('/vehicle_positions/line/{lineId}', [VehiclePositionController::class, 'vehiclesOnLine']);
 
     // --- Korisnici (User) ---
     Route::get('/user/{userId}', [\App\Http\Controllers\UserController::class, 'show']);
