@@ -17,10 +17,9 @@ class VehicleResource extends JsonResource
         return [
             'id' => $this->id,
             'vehicle_code' => $this->vehicle_code,
-            'line_id' => $this->line_id,
+            'line' => $this->line->code,
             'active' => $this->active,
-            'positions' => VehiclePositionResource::collection(
-                $this->positions()->latest('timestamp')->take(1)->get()
-            ),
-        ];    }
+            'positions'=>VehiclePositionResource::collection($this->positions)
+        ];
+    }
 }

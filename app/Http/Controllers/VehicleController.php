@@ -16,6 +16,10 @@ class VehicleController extends Controller
     {
         $this->vehicleService = $vehicleService;
     }
+    public function getVehiclesOnLine($lineId){
+        $vehicles = $this->vehicleService->getVehiclesForLine($lineId);
+        return response()->json(['vehicles' => VehicleResource::collection($vehicles), 'message' => 'Vehicles founded successfully'], 200);
+    }
     /**
      * Display a listing of the resource.
      */

@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Models\Line;
 use App\Models\Station;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class LineStationService
@@ -59,7 +60,6 @@ class LineStationService
             $query->wherePivot('direction', $direction);
         }
 
-        // explicit order by pivot stop_sequence
         return $query->orderBy('line_stations.stop_sequence')->get();
     }
 

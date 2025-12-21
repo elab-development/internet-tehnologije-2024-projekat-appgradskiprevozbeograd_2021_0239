@@ -20,10 +20,7 @@ class LineController extends Controller
      */
     public function index()
     {
-        $lines = Line::with(['stations' => function ($q) {
-            $q->orderBy('line_station.stop_sequence');
-        }])->get();
-
+        $lines=Line::all();
         return response()->json(["lines" => LineResource::collection($lines), 'message' => "Lines founded successfully"], 200);
     }
 
@@ -101,6 +98,10 @@ class LineController extends Controller
             return response()->json(["message"=>"Lines not found"],404);
         }
         return response()->json(["line"=> LineResource::collection($lines),'message'=>"Line founded successfully"],200);
+    }
+    public function showLineForStation($stationId)
+    {
+
     }
 
 

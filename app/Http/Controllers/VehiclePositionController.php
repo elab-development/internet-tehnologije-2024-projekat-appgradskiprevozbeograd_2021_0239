@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Resources\VehiclePositionResource;
 use App\Http\Resources\VehicleResource;
 use App\Http\Services\VehiclePositionService;
+use App\Http\Services\VehicleService;
 use App\Models\VehiclePosition;
 use Illuminate\Http\Request;
 
 class VehiclePositionController extends Controller
 {
     protected VehiclePositionService $positionService;
+    protected VehicleService $vehicleService;
 
-    public function __construct(VehiclePositionService $positionService)
+    public function __construct(VehiclePositionService $positionService, VehicleService $vehicleService)
     {
         $this->positionService = $positionService;
+        $this->vehicleService = $vehicleService;
     }
 
     public function store(Request $request)
@@ -64,9 +67,4 @@ class VehiclePositionController extends Controller
         return response()->json(['positions' => VehiclePositionResource::collection($positions), 'message' => 'Positions retrieved successfully'], 200);
     }
 
-    public function vehiclesOnLine($lineId)
-    {
-        $vehicles = $this->positionService->getVehiclesOnLine($lineId);
-        return response()->json(['vehicles' => VehicleResource::collection($vehicles), 'message' => 'Vehicles on line retrieved successfully'], 200);
-    }
 }

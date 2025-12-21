@@ -27,8 +27,5 @@ class VehiclePositionService
     public function getPositionsForVehicle($vehicleId):Collection{
         return VehiclePosition::where("vehicle_id",$vehicleId)->get();
     }
-    public function getVehiclesOnLine($lineId):Collection
-    {
-        return VehiclePosition::where("line_id",$lineId)->get();
-    }
+
 }

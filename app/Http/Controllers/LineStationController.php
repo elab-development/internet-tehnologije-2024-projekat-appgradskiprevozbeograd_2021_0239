@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LineResource;
+use App\Http\Resources\StationResource;
 use App\Http\Services\LineStationService;
 use App\Models\Line;
 use App\Models\LineStation;
@@ -12,6 +14,10 @@ class LineStationController extends Controller
 {
     protected LineStationService $service;
 
+    public function __construct(LineStationService $service){
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -21,6 +27,10 @@ class LineStationController extends Controller
         $stations = $this->service->getStationsForLine($line, $direction);
 
         return response()->json(['stations' => StationResource::collection($stations)], 200);
+    }
+    public function showLinesForStation($stationId){
+        $lines=$this->service->getLinesForStation($stationId);
+        return response()->json(['lines' => LineResource::collection($lines)], 200);
     }
 
     /**

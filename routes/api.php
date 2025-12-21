@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get('/line/code/{code}', [\App\Http\Controllers\LineController::class, 'showLineByCode']);
     Route::get('/line/name/{name}', [\App\Http\Controllers\LineController::class, 'showLineByName']);
     Route::get("/line/mode/{mode}", [\App\Http\Controllers\LineController::class, 'showLinesByMode']);
-    Route::get("/line/all", [\App\Http\Controllers\LineController::class, 'index']);
+    Route::get("/lines", [\App\Http\Controllers\LineController::class, 'index']);
 
     // --- Stanice (Stations) ---
     Route::get("/station/{stationid}", [\App\Http\Controllers\StationController::class, 'show']);
@@ -46,10 +46,14 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
 
     // --- Linije & Stanice (LineStation) ---
     Route::get('lines/{line}/stations', [LineStationController::class, 'index']);
+    Route::get('stations/{stationId}/lines', [LineStationController::class, 'showLinesForStation']);
+
+
 
     // --- Vozila (Vehicles) ---
     Route::get('/vehicles', [VehicleController::class, 'index']);
     Route::get('/vehicles/{vehicleId}', [VehicleController::class, 'show']);
+    Route::get("/vehicles/line/{lineId}", [VehicleController::class, 'getVehiclesOnLine']);
 
     // --- Pozicije vozila (VehiclePositions) ---
     Route::get('/vehicle_positions/latest/{vehicleId}', [VehiclePositionController::class, 'latest']);
