@@ -14,9 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-// Rute za ČITANJE (GET) koje su dozvoljene svim ulogama:
-// 'auth:sanctum' osigurava da je korisnik ulogovan.
-// 'role:admin,operator,user' osigurava da je uloga jedna od navedenih.
+
 Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function () {
 
     // --- Linije (Lines) ---
@@ -24,6 +22,7 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get('/line/code/{code}', [\App\Http\Controllers\LineController::class, 'showLineByCode']);
     Route::get('/line/name/{name}', [\App\Http\Controllers\LineController::class, 'showLineByName']);
     Route::get("/line/mode/{mode}", [\App\Http\Controllers\LineController::class, 'showLinesByMode']);
+    Route::get("/line/all", [\App\Http\Controllers\LineController::class, 'index']);
 
     // --- Stanice (Stations) ---
     Route::get("/station/{stationid}", [\App\Http\Controllers\StationController::class, 'show']);
@@ -31,6 +30,7 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
     Route::get("/station/address/{address}", [\App\Http\Controllers\StationController::class, 'showByAddress']);
     Route::get("/station/name/{name}", [\App\Http\Controllers\StationController::class, 'showByName']);
     Route::get("/station/search/{search}", [\App\Http\Controllers\StationController::class, 'searchStations']);
+    Route::get("/stations",[\App\Http\Controllers\StationController::class, 'index']);
 
     // --- Putovanja (Trips) ---
     Route::get("/trip/{tripId}", [\App\Http\Controllers\TripController::class, 'show']);

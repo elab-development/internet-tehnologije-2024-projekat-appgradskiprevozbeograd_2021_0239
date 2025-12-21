@@ -22,8 +22,6 @@ class RoleMiddleware
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        print('User Role: ' . $user->role->name);
-        print('Allowed Roles: ' . implode(', ', $roles));
         if (!in_array($user->role->name, $roles)) {
             return response()->json(['message' => 'You dont have permission for this route'], 403);
         }

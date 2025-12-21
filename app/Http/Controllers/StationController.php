@@ -6,6 +6,7 @@ use App\Http\Resources\StationResource;
 use App\Http\Services\StationService;
 use App\Models\Station;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class StationController extends Controller
@@ -19,7 +20,7 @@ class StationController extends Controller
      */
     public function index()
     {
-        $all=Station::all();
+        $all=Station::paginate(5);
         return response()->json(['data'=>StationResource::collection($all)],200);
     }
 
