@@ -43,7 +43,7 @@ class TripStopController extends Controller
             'trip_id' => 'required',
             'station_id' => 'required',
             'scheduled_arrival' => 'required',
-            'sequence' => 'required',
+            'stop_sequence' => 'required',
 
         ]);
         if($validator->fails()){

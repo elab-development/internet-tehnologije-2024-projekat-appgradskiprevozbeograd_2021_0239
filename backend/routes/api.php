@@ -86,7 +86,7 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::get("/operators", [\App\Http\Controllers\UserController::class, 'getAllOperators']);
 
     // --- Linije (Lines) ---
-    Route::post('/line/add', [\App\Http\Controllers\LineController::class, 'store']);
+    Route::post('/line/add', [\App\Http\Controllers\LineController::class, 'stBrisore']);
     Route::put('/line/update/{line}', [\App\Http\Controllers\LineController::class, 'update']);
     Route::delete('/line/delete/{line}', [\App\Http\Controllers\LineController::class, 'destroy']);
 

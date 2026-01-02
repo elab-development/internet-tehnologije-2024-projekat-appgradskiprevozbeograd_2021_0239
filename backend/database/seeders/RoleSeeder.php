@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\database\seeders;
+namespace Database\Seeders;
 
 use App\Models\Roles;
 use Illuminate\Database\Seeder;

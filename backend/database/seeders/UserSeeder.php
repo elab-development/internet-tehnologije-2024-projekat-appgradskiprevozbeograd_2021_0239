@@ -1,7 +1,6 @@
 <?php
 
-namespace backend\database\seeders;
-
+namespace Database\Seeders;
 use App\Models\Roles;
 use App\Models\User;
 use Illuminate\Database\Seeder;
