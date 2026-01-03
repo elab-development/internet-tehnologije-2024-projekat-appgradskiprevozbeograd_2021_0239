@@ -27,6 +27,7 @@ export function Login() {
                 navigate("/");
             })
             .catch((err) => {
+                console.log(err)
                 const backendError = err?.message || "Greška prilikom prijave";
                 setError(backendError);
             })
