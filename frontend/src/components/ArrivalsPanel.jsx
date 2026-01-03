@@ -1,3 +1,3 @@
-export default class ArrivalsPanel {
-
+export default function ArrivalsPanel() {
+    return <div>...</div>;
 }

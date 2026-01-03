@@ -1,11 +1,10 @@
-import React, { useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { motion } from 'framer-motion';
 import { Search, MapPin, Bus, Navigation, Clock } from 'lucide-react';
 
 import StationsTab from '../components/StationsTab.jsx';
 import LinesTab from '../components/LinesTab.jsx';
 import MapTab from '../components/MapTab.jsx';
-import {  searchStations } from "../api/user.js";
 import ArrivalsPanel from "../components/ArrivalsPanel.jsx";
 
 const initialSelectedStation = {
@@ -17,44 +16,60 @@ const initialSelectedStation = {
 export default function HomeUser(){
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('stations');
-
+    const [displayedStations, setDisplayedStations] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     const [selectedStation, setSelectedStation] = useState(initialSelectedStation);
 
     const [stations, setStations] = useState([]);
 
+    useEffect(() => {
+        setDisplayedStations(stations);
+        setIsSearching(false);
+    }, [stations]);
 
+    const filterStations = useCallback(() => {
+        const query = searchQuery.trim().toLowerCase();
 
-
-
-    const handleSearch = async () => {
-        if (activeTab === 'stations' && searchQuery.trim().length > 0) {
-            try {
-                const searchResults = await searchStations(searchQuery.trim());
-                setStations(searchResults);
-
-                if (searchResults.length > 0) {
-                    setSelectedStation(searchResults[0]);
-                } else {
-                    setSelectedStation(initialSelectedStation);
-                }
-            } catch (err) {
-                console.error("Greška prilikom pretrage stanica:", err);
-                setStations([]);
-                setSelectedStation(initialSelectedStation);
-            }
-        } else if (activeTab === 'lines') {
-            console.log("Pretraga linija nije implementirana.");
+        if (query.length === 0) {
+            setDisplayedStations(stations);
+            setIsSearching(false);
+            return;
         }
-    };
+        setIsSearching(true);
+        const filtered = stations.filter(station => {
+            return station.stop_code && station.stop_code.toLowerCase().includes(query);
+        });
+        setDisplayedStations(filtered);
+        if (filtered.length > 0) {
+            setSelectedStation(filtered[0]);
+        } else {
+            setSelectedStation(initialSelectedStation);
+        }
+        setIsSearching(false);
+    }, [searchQuery, stations]);
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (activeTab === 'stations') {
+                filterStations();
+            }
+        }, 300); // 300ms debounce
+
+        return () => clearTimeout(timeoutId);
+
+    }, [searchQuery, activeTab, filterStations]);
+
+
+
+
     return (
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 16px' }}>
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ marginBottom: '24px' }}
+
             >
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative', marginBottom: '24px' }}>
                     <Search
                         style={{
                             position: 'absolute',
@@ -68,14 +83,11 @@ export default function HomeUser(){
                     />
                     <input
                         type="text"
-                        placeholder="Pretražite linije ili stanice..."
+                        placeholder="Pretražite stanice po kodu..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSearch();
-                        }}
                         style={{
-                            width: '100%',
+                            width:"100%",
                             paddingLeft: '48px',
                             paddingRight: '16px',
                             paddingTop: '16px',
@@ -98,6 +110,18 @@ export default function HomeUser(){
                             e.target.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
                         }}
                     />
+                    {isSearching &&(
+                        <span style={{
+                            position: 'absolute',
+                            right: '16px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color:'#3B82F6'
+                        }}>
+                                Učitavanje...
+                            </span>
+                    )
+                    }
                 </div>
             </motion.div>
 
@@ -171,17 +195,21 @@ export default function HomeUser(){
                         gap: '24px',
                     }}
                 >
-                    {}
                     <div>
                         {activeTab === 'stations' && (
                             <StationsTab
                                 selectedStation={selectedStation}
                                 setSelectedStation={setSelectedStation}
-                                currentStations={stations}
+                                currentStations={displayedStations}
                                 setStations={setStations}
+                                isSearchingActive={isSearching||searchQuery.length> 0}
                             />
                         )}
-
+                        {
+                            activeTab==='lines' && (
+                                <LinesTab/>
+                            )
+                        }
 
 
 

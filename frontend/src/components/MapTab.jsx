@@ -1,3 +1,3 @@
-export default class MapTab {
-
+export default function MapTab() {
+    return <div>...</div>;
 }

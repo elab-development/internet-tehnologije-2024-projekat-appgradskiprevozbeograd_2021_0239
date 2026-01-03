@@ -1,4 +1,3 @@
-// src/components/StationsTab.jsx (Ažurirano za Paginaciju)
 
 import React, {useCallback, useEffect, useState} from 'react';
 import { motion } from 'framer-motion';
@@ -12,7 +11,7 @@ const initialPagination = {
     total: 0,
 };
 
-export default function StationsTab({setSelectedStation, currentStations, setStations, selectedStation}) {
+export default function StationsTab({setSelectedStation, currentStations, setStations, selectedStation,isSearchActive}) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [paginationData, setPaginationData] = useState(initialPagination);
@@ -51,6 +50,9 @@ export default function StationsTab({setSelectedStation, currentStations, setSta
             // Postavljamo prvu stanicu kao default selektovanu
             if (newStations.length > 0) {
                 setSelectedStation(newStations[0]);
+                if (!isSearchActive) {
+                    setSelectedStation(newStations[0]);
+                }
             } else {
                 setSelectedStation({ id: 0, name: 'Izaberite Stanicu' });
             }
@@ -63,13 +65,13 @@ export default function StationsTab({setSelectedStation, currentStations, setSta
         } finally {
             setLoading(false);
         }
-    }, [setStations, setSelectedStation]);
+    }, [setStations, setSelectedStation,isSearchActive]);
 
     useEffect(() => {
-        if (currentStations.length === 0 && paginationData.total === 0) {
+        if (!isSearchActive&&  currentStations.length === 0 && paginationData.total === 0) {
             loadStations(1);
         }
-    }, [loadStations, currentStations.length, paginationData.total]);
+    }, [loadStations, currentStations.length, paginationData.total,isSearchActive]);
 
     const handlePageChange = (page) => {
         // Uvek proveravamo da stranica ne ide ispod 1 ili iznad poslednje
@@ -102,11 +104,11 @@ export default function StationsTab({setSelectedStation, currentStations, setSta
             style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
         >
             <h2 /* ... stilovi ... */ >
-                Sve Stanice (Ukupno: {paginationData.total})
+                Sve Stanice
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {loading && <div>Učitavanje...</div>}
+                {loading && !isSearchActive &&<div>Učitavanje...</div>}
                 {error && <div style={{ color: '#EF4444', fontWeight: '600' }}>Greška: {error}</div>}
 
                 {(!loading && Array.isArray(currentStations) && currentStations.length === 0) && !error && <div>Nema stanica</div>}
@@ -115,7 +117,15 @@ export default function StationsTab({setSelectedStation, currentStations, setSta
                     <motion.div
                         key={station.id}
                         onClick={() => setSelectedStation(station)}
-                        style={{ /* ... stilovi ... */ }}
+                        style={{
+                            padding: '16px',
+                            background: 'white',
+                            borderRadius: '12px',
+                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                            border: `2px solid ${selectedStation.id === station.id ? '#3B82F6' : 'transparent'}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s'
+                        }}
                     >
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                             <div style={{ flex: 1 }}>
@@ -131,7 +141,7 @@ export default function StationsTab({setSelectedStation, currentStations, setSta
                 ))}
             </div>
 
-            {lastPage > 1 && (
+            {lastPage > 1 && !isSearchActive && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
 
                     {/* Dugme PRETHODNA */}
