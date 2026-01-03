@@ -1,7 +1,8 @@
+
+
+
 export default function HomeUser(){
     return (
-        <div>
-            Home User
-        </div>
+        <div>Home User</div>
     );
 }

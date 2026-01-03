@@ -24,7 +24,17 @@ export function Login() {
             .then(({ data }) => {
                 setToken(data.token);
                 setUser(data.user);
-                navigate("/");
+                console.log(data.user);
+                if (data.user.role_id === 1) {
+                    navigate("/admin/home");
+                }
+                if (data.user.role_id === 2) {
+                    navigate("/operator/home");
+                }
+                if (data.user.role_id === 3) {
+                    navigate("/user/home");
+
+                }
             })
             .catch((err) => {
                 console.log(err)
