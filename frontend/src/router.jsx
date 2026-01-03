@@ -4,7 +4,7 @@ import HomeAdmin from "./views/HomeAdmin.jsx";
 import HomeOperator from "./views/HomeOperator.jsx";
 import HomeUser from "./views/HomeUser.jsx";
 import GuestLayout from "./components/GuestLayout.jsx";
-import Login from "./views/Auth/Login.jsx";
+import {Login} from "./views/Auth/Login.jsx";
 import Register from "./views/Auth/Register.jsx";
 const router=createBrowserRouter([
     {
@@ -12,17 +12,32 @@ const router=createBrowserRouter([
         element: <DefaultLayout/>,
         children:[
             {
-                path:"/admin/home",
-                element: <HomeAdmin/>,
+                path:"/admin",
+                children:[
+                    {
+                        path:"home",
+                        element: <HomeAdmin/>
+                    }
+                ]
             },
             {
-                path:"/operator/home",
-                element: <HomeOperator/>,
+                path:"/operator",
+                children:[
+                    {
+                        path:"home",
+                        element: <HomeOperator/>
+                    }
+                ]
             }
             ,
             {
-                path:"/user/home",
-                element: <HomeUser/>,
+                path:"/user",
+                children:[
+                    {
+                        path:"home",
+                        element: <HomeUser/>
+                    }
+                ]
             }
         ]
     },
@@ -31,11 +46,11 @@ const router=createBrowserRouter([
         element: <GuestLayout/>,
         children:[
             {
-                path:"/login",
+                path:"login",
                 element: <Login/>
             },
             {
-                path:"/register",
+                path:"register",
                 element: <Register/>
             }
         ]
