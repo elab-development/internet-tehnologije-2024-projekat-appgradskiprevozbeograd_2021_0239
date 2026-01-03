@@ -10,6 +10,7 @@ import {Login} from "./views/Auth/Login.jsx";
 import Register from "./views/Auth/Register.jsx";
 import Unauthorized from "./views/Unauthorized.jsx";
 import {Home} from "lucide-react";
+import HomeRedirect from "./components/HomeRedirect.jsx";
 
 
 const router=createBrowserRouter([
@@ -29,7 +30,7 @@ const router=createBrowserRouter([
             {
                 element: <ProtectedRoute allowedRoles={[]} />,
                 children: [
-                    { index: true, element: <div>Welcome — choose your section</div> },
+                    { index: true, element: <HomeRedirect/> },
                 ],
             },
             {

@@ -1,24 +1,44 @@
-import React, {createContext,useContext,useState} from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import axiosClient from "../axios-client.js";
 
 const StateContext=createContext({
-    currentUser: null,
+    user: null,
     token: null,
+    loading: false,
     setUser: () => {},
     setToken: () => {},
 })
 
 
 export const ContextProvider = ({children}) => {
-    const[user,setUser] = useState({});
-    const[token, _setToken] = useState(localStorage.getItem("ACCESS_TOKEN"));
-    const setToken = (token)=>{
+    const [user, _setUser] = useState(null);
+    const [token, _setToken] = useState(localStorage.getItem("ACCESS_TOKEN"));
+    const [loading, setLoading] = useState(false);
+    const setToken = useCallback((token) => {
         _setToken(token);
-        if(token){
-            localStorage.setItem("ACCESS_TOKEN",token);
-        }else{
-            localStorage.removeItem("ACCESS_TOKEN");
-        }
-    }
+        if (token) localStorage.setItem("ACCESS_TOKEN", token);
+        else localStorage.removeItem("ACCESS_TOKEN");
+    }, []);
+
+    const setUser = useCallback((user) => {
+        _setUser(user);
+    }, []);
+
+    // fetch trenutnog korisnika sa backend-a
+    useEffect(() => {
+        if (!token) return;
+        setLoading(true);
+        axiosClient.get("/me")
+            .then(({ data }) => {
+                setUser(data.user ?? data);
+            })
+            .catch((err) => {
+                console.error("Fetch /me failed:", err);
+                setToken(null);
+                setUser(null);
+            })
+            .finally(() => setLoading(false));
+    }, [token, setUser, setToken]);
 
 
     return (
@@ -26,8 +46,12 @@ export const ContextProvider = ({children}) => {
             user,
             setUser,
             token,
-            setToken
-        }}>{ children}</StateContext.Provider>
-    )
-}
+            setToken,
+            loading
+        }}>
+            {children}
+        </StateContext.Provider>
+    );
+};
+
 export const useStateContext = () => useContext(StateContext);

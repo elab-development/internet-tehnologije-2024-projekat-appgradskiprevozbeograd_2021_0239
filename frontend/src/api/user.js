@@ -38,7 +38,7 @@ export const fetchVehiclesOnLine = async (lineId) => {
 export const fetchArrivalsForStation = async (stationId) => {
     try {
         const response = await axiosClient.get(`/tripstop/station/${stationId}`);
-        console.log(response.data);
+        console.log(`Odgovor sa bekenda ${response.data}`);
         return response.data;
     } catch (error) {
         console.error(`Greška pri dohvatu dolazaka za stanicu ${stationId}:`, error);

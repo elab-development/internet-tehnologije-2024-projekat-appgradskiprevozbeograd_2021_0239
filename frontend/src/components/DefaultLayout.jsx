@@ -6,16 +6,24 @@ import {
     Bus,
     LogOut
 } from 'lucide-react'
-
+import axiosClient from "../axios-client.js";
+import {useEffect} from "react";
 
 export default function DefaultLayout() {
 
-    const { user, token, setUser, setToken } = useStateContext();
+    const { user, token, setUser, setToken, loading } = useStateContext();
     const navigate = useNavigate();
     console.log("user:", user);
     console.log("token:", token);
     if (!token) {
         return <Navigate to="/login" replace />;
+    }
+    if (loading) {
+        return (
+            <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p>Učitavanje...</p>
+            </div>
+        );
     }
     const handleLogout = () => {
         setToken(null);
