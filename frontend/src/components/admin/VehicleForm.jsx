@@ -5,18 +5,21 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
     const [form, setForm] = useState({
         vehicle_code: "",
         line_id: "",
-        type: "bus",
+        user_id: "",
         active: 1,
     });
 
     const [lines, setLines] = useState([]);
+    const [operators, setOperators] = useState([]);
     const [loadingLines, setLoadingLines] = useState(false);
+    const [loadingOperators, setLoadingOperators] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
         loadLines();
+        loadOperators();
     }, []);
 
     async function loadLines() {
@@ -25,7 +28,7 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
             const res = await axiosClient.get("/lines");
             const payload = Array.isArray(res.data)
                 ? res.data
-                : (res.data?.lines ?? res.data?.data ?? res.data?.stations ?? []);
+                : res.data?.lines ?? res.data?.data ?? [];
             setLines(Array.isArray(payload) ? payload : []);
         } catch (err) {
             console.error("loadLines error", err);
@@ -35,12 +38,28 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
         }
     }
 
+
+    async function loadOperators() {
+        try {
+            setLoadingOperators(true);
+            const res = await axiosClient.get("/operators");
+            const payload = Array.isArray(res.data)
+                ? res.data
+                : res.data?.operators ?? res.data?.data ?? [];
+            setOperators(Array.isArray(payload) ? payload : []);
+        } catch (err) {
+            console.error("loadOperators error", err);
+            setOperators([]);
+        } finally {
+            setLoadingOperators(false);
+        }
+    }
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "active") {
             setForm((p) => ({ ...p, [name]: Number(value) }));
-        } else if (name === "line_id") {
-            setForm((p) => ({ ...p, [name]: value }));
         } else {
             setForm((p) => ({ ...p, [name]: value }));
         }
@@ -56,6 +75,7 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
         const errs = {};
         if (!form.vehicle_code) errs.vehicle_code = ["Unesite registraciju / kod vozila."];
         if (!form.line_id) errs.line_id = ["Izaberite liniju."];
+        if (!form.user_id) errs.user_id = ["Izaberite vozača."];
         if (typeof form.active === "undefined" || ![0, 1].includes(Number(form.active))) errs.active = ["Active mora biti 0 ili 1."];
 
         if (Object.keys(errs).length) {
@@ -69,6 +89,7 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
             const payload = {
                 vehicle_code: form.vehicle_code,
                 line_id: form.line_id,
+                user_id: form.user_id,
                 active: Number(form.active),
             };
 
@@ -87,7 +108,6 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
                 return;
             }
 
-            // pokušaj parsiranje grešaka iz Laravel-a
             const resp = typeof err.response.data === "string"
                 ? (() => { try { return JSON.parse(err.response.data); } catch { return { message: err.response.data }; } })()
                 : err.response.data;
@@ -127,7 +147,7 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
                             <option value="">-- Izaberi liniju --</option>
                             {lines.map((l) => (
                                 <option key={l.id} value={l.id}>
-                                    {l.code} — {l.name ?? l.name}
+                                    {l.code} — {l.name ?? l.code}
                                 </option>
                             ))}
                         </select>
@@ -135,7 +155,22 @@ export default function VehicleForm({ onClose, onAddSuccess }) {
                     {fieldErrors.line_id && <div style={{ color: "red" }}>{fieldErrors.line_id.join(", ")}</div>}
                 </div>
 
-
+                <div>
+                    <label style={{ display: "block", marginBottom: 6 }}>Vozač</label>
+                    {loadingOperators ? (
+                        <div>Učitavanje vozača...</div>
+                    ) : (
+                        <select name="user_id" value={form.user_id} onChange={handleChange}>
+                            <option value="">-- Izaberi vozača --</option>
+                            {operators.map((op) => (
+                                <option key={op.id} value={op.id}>
+                                    {op.name} ({op.email})
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                    {fieldErrors.user_id && <div style={{ color: "red" }}>{fieldErrors.user_id.join(", ")}</div>}
+                </div>
 
                 <div>
                     <label style={{ display: "block", marginBottom: 6 }}>Status</label>
