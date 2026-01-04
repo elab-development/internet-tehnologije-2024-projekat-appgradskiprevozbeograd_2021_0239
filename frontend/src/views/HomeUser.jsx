@@ -214,7 +214,7 @@ export default function HomeUser(){
                         }
                         {
                             activeTab==='map' && (
-                                <MapTab stationId={selectedStation.id}/>
+                                <MapTab station={selectedStation}/>
                             )
                         }
 

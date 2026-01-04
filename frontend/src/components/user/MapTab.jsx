@@ -1,10 +1,14 @@
-// src/components/MapTab.jsx
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import { motion } from "framer-motion";
+import {useEffect, useState, useCallback, useRef} from "react";
+import {MapContainer, TileLayer, Marker, Popup, useMap} from 'react-leaflet';
+import L from 'leaflet';
+import {MapPin, Bus} from 'lucide-react';
+import {motion} from "framer-motion";
 import axiosClient from "../../axios-client.js";
 
+
+// #1. IKONE
+
+// Ikona za vozilo (ostaje nepromenjena)
 function createLineIcon(lineLabel) {
     return L.divIcon({
         className: "custom-vehicle-icon",
@@ -28,23 +32,73 @@ function createLineIcon(lineLabel) {
     });
 }
 
+// Nova ikona za stanicu
+function createStationIcon(stationName) {
+    // Direktno ugrađivanje SVG koda za MapPin (iz Lucide biblioteke)
+    const mapPinSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+        </svg>
+    `;
+
+    return L.divIcon({
+        className: "custom-station-icon",
+        html: `<div style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            width:32px;
+            height:32px;
+            border-radius:50%;
+            background:#EF4444; /* Crvena boja za stanicu */
+            color:white;
+            box-shadow:0 3px 6px rgba(0,0,0,0.2);
+            border: 3px solid white;
+          ">
+            ${mapPinSvg}
+          </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+    });
+}
+
+
+
+
 /** Fit bounds helper */
-function FitBoundsToMarkers({ markers }) {
+function FitBoundsToMarkers({ markers, station }) {
     const map = useMap();
+    // Dodajemo stanicu u zavisnosti da bi se ponovo izračunale granice
     useEffect(() => {
-        if (!map || !markers || markers.length === 0) return;
-        const latLngs = markers
+        if (!map) return;
+
+        const allMarkers = [...(markers || [])];
+
+        // Dodajemo stanicu u listu markera za izračunavanje granica
+        if (station && typeof station.latitude === "number" && typeof station.longitude === "number") {
+            allMarkers.push({
+                lat: station.latitude,
+                lng: station.longitude
+            });
+        }
+
+        if (allMarkers.length === 0) return;
+
+        const latLngs = allMarkers
             .map(m => (typeof m.lat === "number" && typeof m.lng === "number" ? [m.lat, m.lng] : null))
             .filter(Boolean);
         if (latLngs.length === 0) return;
         const bounds = L.latLngBounds(latLngs);
+        // Padamo granice za 20%
         map.fitBounds(bounds.pad(0.2), { maxZoom: 16, animate: true });
-    }, [map, markers]);
+    }, [map, markers, station]); // Dodali smo 'station' u dependency array
     return null;
 }
 
 
-export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
+export default function MapTab({ station, pollIntervalMs = 5000 }) {
     const [vehicles, setVehicles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -57,8 +111,17 @@ export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
         return Number.isFinite(n) ? n : undefined;
     };
 
+    // Provera da li je station objekat validan
+    const stationLat = station && toNumber(station.latitude);
+    const stationLng = station && toNumber(station.longitude);
+    const isStationValid = typeof stationLat === "number" && typeof stationLng === "number";
+
+
+    // ... (fetchVehiclesForStation ostaje nepromenjen) ...
     const fetchVehiclesForStation = useCallback(async () => {
-        if (!stationId) return;
+        if (!station) return;
+        // ... (Logika za dohvaćanje vozila) ...
+
 
         setLoading(true);
         setError(null);
@@ -70,7 +133,7 @@ export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
         if (stationLinesCancel) cancelTokensRef.current.push(stationLinesCancel);
 
         try {
-            const linesRes = await axiosClient.get(`/stations/${stationId}/lines`, {
+            const linesRes = await axiosClient.get(`/stations/${station.id}/lines`, {
                 cancelToken: stationLinesCancel ? stationLinesCancel.token : undefined,
             });
 
@@ -152,7 +215,8 @@ export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
         } finally {
             setLoading(false);
         }
-    }, [stationId]);
+    }, [station]);
+    // ... (fetchVehiclesForStation ostaje nepromenjen) ...
 
     useEffect(() => {
         fetchVehiclesForStation();
@@ -168,7 +232,10 @@ export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
         };
     }, [fetchVehiclesForStation, pollIntervalMs]);
 
-    const defaultCenter = vehicles.length > 0 ? [vehicles[0].lat, vehicles[0].lng] : [44.8176, 20.4569];
+    // Određivanje centra mape: ako ima vozila, koristi prvo, inače koristi stanicu, inače default.
+    const defaultCenter = vehicles.length > 0
+        ? [vehicles[0].lat, vehicles[0].lng]
+        : (isStationValid ? [stationLat, stationLng] : [44.8176, 20.4569]); // Default: Beograd
 
     return (
         <motion.div
@@ -186,7 +253,28 @@ export default function MapTab({ stationId, pollIntervalMs = 5000 }) {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    <FitBoundsToMarkers markers={vehicles} />
+                    {/* DYNAMIC FIT BOUNDS: Prilagođava mapu da prikaže sva vozila i stanicu */}
+                    <FitBoundsToMarkers markers={vehicles} station={isStationValid ? { lat: stationLat, lng: stationLng } : null} />
+
+                    {/* MARKER ZA STANICU */}
+                    {isStationValid && (
+                        <Marker
+                            position={[stationLat, stationLng]}
+                            icon={createStationIcon(station.name ?? "Stanica")}
+                        >
+                            <Popup>
+                                <div style={{ minWidth: 160 }}>
+                                    <div style={{ fontWeight: 700, fontSize: 16 }}>{station.name ?? "Nepoznata Stanica"}</div>
+                                    <div style={{ color: "#6B7280", marginTop: 6 }}>
+                                        Kod: {station.stop_code}
+                                    </div>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    )}
+
+
+                    {/* MARKERI ZA VOZILA (ostaje nepromenjeno) */}
 
                     {vehicles.map((veh) => (
                         <Marker
