@@ -293,7 +293,7 @@ export function Login() {
                         <p className="text-center text-sm text-gray-600">
                             Nemate profil?{" "}
                             <Link
-                                to="/register"
+                                to="/auth/register"
                                 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors duration-200 hover:underline"
                             >
                                 Registrujte se
