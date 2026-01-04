@@ -2,6 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import axiosClient from '../../axios-client.js'; // prilagodi putanju ako treba
 
+function getLineInfo(line) {
+    let icon = '❓';
+    if (line.mode === 'bus') icon = '🚌';
+    else if (line.mode === 'tram') icon = '🚊';
+    else if (line.mode === 'trolley') icon = '⚡';
+
+
+
+    return `${icon} ${line.mode.charAt(0).toUpperCase() + line.mode.slice(1)} • ${status}`;
+}
+
 export default function LineList() {
     const [lines, setLines] = useState(null); // null = loading, [] = loaded empty
     const [error, setError] = useState(null);
@@ -99,7 +110,13 @@ export default function LineList() {
                             <div>
                                 <h3 style={{ margin: 0 }}>{line.name}</h3>
                                 <p style={{ margin: 0, color: '#6B7280' }}>
-                                    {line.mode === 'bus' ? '🚌 Autobus' : '🚊 Tramvaj'} • {line.active || line.is_active ? (String(line.active) === '1' || line.active === true ? 'Aktivna' : 'Neaktivna') : (line.status || '—')}
+                                    {line.mode === 'bus'
+                                        ? '🚌 Autobus'
+                                        : line.mode === 'tram'
+                                            ? '🚊 Tramvaj'
+                                            : line.mode === 'trolley'
+                                                ? '⚡ Trolejbus'
+                                                : '❓ Nepoznat'}
                                 </p>
                             </div>
                         </div>

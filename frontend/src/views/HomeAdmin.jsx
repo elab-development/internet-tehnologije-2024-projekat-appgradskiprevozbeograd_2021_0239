@@ -18,6 +18,10 @@ export default function HomeAdmin(){
         ? 'lines'
         : pathSegments[pathSegments.length - 1];
 
+    const refreshData = () => {
+        navigate(0);
+    };
+
     const [stats, setStats] = useState([
         { label: 'Ukupno Linija', value: '—', icon: RouteIcon, color: 'linear-gradient(to bottom right, #3B82F6, #4F46E5)' },
         { label: 'Ukupno Stanica', value: '—', icon: MapPin, color: 'linear-gradient(to bottom right, #10B981, #059669)' },
@@ -132,7 +136,12 @@ export default function HomeAdmin(){
                 </div>
             </div>
 
-            <AddModal open={showAddModal} onClose={() => setShowAddModal(false)} activeSection={currentSection} />
+            <AddModal
+                open={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                activeSection={currentSection}
+                onAddSuccess={refreshData}
+            />
         </div>
     );
 }
