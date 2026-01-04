@@ -11,6 +11,10 @@ import Register from "./views/Auth/Register.jsx";
 import Unauthorized from "./views/Unauthorized.jsx";
 import {Home} from "lucide-react";
 import HomeRedirect from "./components/HomeRedirect.jsx";
+import LineList from "./components/admin/LineList.jsx";
+import StationsList from "./components/admin/StationList.jsx";
+import TripsList from "./components/admin/TripList.jsx";
+import VehiclesList from "./components/admin/VehicleList.jsx";
 
 
 const router=createBrowserRouter([
@@ -37,8 +41,17 @@ const router=createBrowserRouter([
                 path: "admin",
                 element: <ProtectedRoute allowedRoles={["1"]} />,
                 children: [
-                    { index: true, element: <HomeAdmin /> },
-                    { path: "home", element: <HomeAdmin /> },
+                    {
+                        element: <HomeAdmin />,
+                        children: [
+
+                            { index: true, element: <LineList /> },
+                            {path:"lines", element: <LineList /> },
+                            { path: "stations", element: <StationsList /> },
+                            { path: "trips", element: <TripsList /> },
+                            { path: "vehicles", element: <VehiclesList /> },
+                        ]
+                    },
 
                 ],
             },

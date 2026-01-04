@@ -26,7 +26,7 @@ export function Login() {
                 setUser(data.user);
                 console.log(data.user);
                 if (data.user.role_id === 1) {
-                    navigate("/admin/home");
+                    navigate("/admin");
                 }
                 if (data.user.role_id === 2) {
                     navigate("/operator/home");
