@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
-import { fetchArrivalsForStation } from "../api/user.js";
+import { fetchArrivalsForStation } from "../../api/user.js";
 
 const arrivalStatusMap = {
     active: { color: "#10B981", label: "U kretanju" },

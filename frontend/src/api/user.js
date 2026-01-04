@@ -11,10 +11,10 @@ export const fetchAllStations = async (page=1) => {
     }
 };
 
-export const fetchAllLines = async () => {
+export const fetchAllLines = async (stationId) => {
     try {
 
-        const response = await axiosClient.get("/line/mode/bus");
+        const response = await axiosClient.get(`/stations/${stationId}/lines`);
 
 
         return response.data;

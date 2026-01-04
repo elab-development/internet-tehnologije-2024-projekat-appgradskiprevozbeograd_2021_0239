@@ -2,10 +2,10 @@ import React, {useCallback, useEffect, useState} from 'react';
 import { motion } from 'framer-motion';
 import { Search, MapPin, Bus, Navigation, Clock } from 'lucide-react';
 
-import StationsTab from '../components/StationsTab.jsx';
-import LinesTab from '../components/LinesTab.jsx';
-import MapTab from '../components/MapTab.jsx';
-import ArrivalsPanel from "../components/ArrivalsPanel.jsx";
+import StationsTab from '../components/user/StationsTab.jsx';
+import LinesTab from '../components/user/LinesTab.jsx';
+import MapTab from '../components/user/MapTab.jsx';
+import ArrivalsPanel from "../components/user/ArrivalsPanel.jsx";
 
 const initialSelectedStation = {
     id: 0,
@@ -26,6 +26,7 @@ export default function HomeUser(){
     useEffect(() => {
         setDisplayedStations(stations);
         setIsSearching(false);
+        setSelectedStation(initialSelectedStation);
     }, [stations]);
 
     const filterStations = useCallback(() => {
@@ -38,7 +39,9 @@ export default function HomeUser(){
         }
         setIsSearching(true);
         const filtered = stations.filter(station => {
-            return station.stop_code && station.stop_code.toLowerCase().includes(query);
+            const codeMatch = station.stop_code?.toLowerCase().includes(query);
+            const nameMatch = station.name?.toLowerCase().includes(query);
+            return codeMatch || nameMatch;
         });
         setDisplayedStations(filtered);
         if (filtered.length > 0) {
@@ -69,11 +72,18 @@ export default function HomeUser(){
                 animate={{ opacity: 1, y: 0 }}
 
             >
-                <div style={{ position: 'relative', marginBottom: '24px' }}>
+                <div style={{ position: 'relative', marginBottom: '24px',
+
+                    background: 'white', // DODATO: Bela pozadina
+                    padding: '4px',     // DODATO: Padding 4px
+                    borderRadius: '12px', // DODATO: Zaobljene ivice
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // DODATO: Senka
+                }}>
                     <Search
                         style={{
                             position: 'absolute',
-                            left: '16px',
+                            // Korigovana pozicija zbog paddinga od 4px na roditelju
+                            left: '20px', // Originalnih 16px + 4px roditeljskog paddinga
                             top: '50%',
                             transform: 'translateY(-50%)',
                             width: '20px',
@@ -87,27 +97,19 @@ export default function HomeUser(){
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
-                            width:"100%",
-                            paddingLeft: '48px',
-                            paddingRight: '16px',
+                            width: "100%",
+                            background: 'transparent',
+                            border: 'none',
+                            boxShadow: 'none',
+                            borderRadius: '8px',
+                            paddingLeft: '44px',
+                            paddingRight: '12px',
                             paddingTop: '16px',
                             paddingBottom: '16px',
-                            background: 'white',
-                            border: '1px solid #E5E7EB',
-                            borderRadius: '12px',
-                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                             outline: 'none',
                             transition: 'all 0.15s',
                             fontSize: '16px',
                             lineHeight: '1.5',
-                        }}
-                        onFocus={(e) => {
-                            e.target.style.borderColor = '#3B82F6';
-                            e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                        }}
-                        onBlur={(e) => {
-                            e.target.style.borderColor = '#E5E7EB';
-                            e.target.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
                         }}
                     />
                     {isSearching &&(
@@ -207,7 +209,12 @@ export default function HomeUser(){
                         )}
                         {
                             activeTab==='lines' && (
-                                <LinesTab/>
+                                <LinesTab stationId={selectedStation.id}/>
+                            )
+                        }
+                        {
+                            activeTab==='map' && (
+                                <MapTab stationId={selectedStation.id}/>
                             )
                         }
 
