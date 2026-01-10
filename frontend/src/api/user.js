@@ -3,10 +3,9 @@ import axiosClient from "../axios-client.js";
 export const fetchAllStations = async (page=1) => {
     try{
         const response =  await axiosClient.get(`/stations?page=${page}`);
-        console.log(response.data);
         return response.data;
     }catch (error){
-        console.log("Greska pri dohvatu stranica: ", error);
+        console.log("Greska pri dohvatu stanica: ", error);
         throw error;
     }
 };
@@ -49,11 +48,15 @@ export const fetchArrivalsForStation = async (stationId) => {
 
 export const searchStations = async (query) => {
     try {
-        if (!query || query.length < 1) return [];
-        const response = await axiosClient.get(`/station/search/${query}`);
-        return response.data;
+        if (!query || query.trim().length === 0) return [];
+        const response = await axiosClient.get(`/station/search?q=${encodeURIComponent(query)}`);
+        return response.data.stations || [];
     } catch (error) {
-        console.error(`Greška pri pretrazi stanica za '${query}':`, error);
+        // Ako backend vrati 404, samo vrati prazan niz umesto da baciš Error
+        if (error.response && error.response.status === 404) {
+            return [];
+        }
+        console.error(`Greška pri pretrazi:`, error);
         throw error;
     }
 };

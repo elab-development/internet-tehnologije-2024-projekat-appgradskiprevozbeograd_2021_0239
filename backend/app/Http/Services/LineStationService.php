@@ -60,7 +60,10 @@ class LineStationService
             $query->wherePivot('direction', $direction);
         }
 
-        return $query->orderBy('line_stations.stop_sequence')->get();
+//        return $query->orderBy('line_stations.stop_sequence')->get();
+        return $query
+            ->orderBy('line_stations.stop_sequence')
+            ->paginate(5);
     }
 
 

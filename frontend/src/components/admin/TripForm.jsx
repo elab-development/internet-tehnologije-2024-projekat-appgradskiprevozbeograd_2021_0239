@@ -11,10 +11,18 @@ import axiosClient from "../../axios-client.js";
 export default function TripForm({ onClose, onAddSuccess }) {
     const [lines, setLines] = useState([]);
     const [loadingLines, setLoadingLines] = useState(false);
-    const [form, setForm] = useState({ line_id: "", days: {}, departures: {} });
+    // const [form, setForm] = useState({ line_id: "", days: {}, departures: {} });
+    const [form, setForm] = useState({
+        line_id: "",
+        days: {},
+        departures: {} // { monday: [], tuesday: [], ... }
+    });
+
     // days: { monday: true, tuesday: false ... } departures: { monday: ['07:00','12:00'], ... }
     const [error, setError] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [currentTimes, setCurrentTimes] = useState({}); // { monday: "", tuesday: "", ... }
+
 
     const week = [
         { key: "monday", label: "Ponedeljak" },
@@ -28,6 +36,28 @@ export default function TripForm({ onClose, onAddSuccess }) {
 
     useEffect(() => { loadLines(); }, []);
 
+
+    function getNextDateForDay(dayKey) {
+        const dayMap = {
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+            sunday: 0, // Sunday = 0 u JS
+        };
+        const today = new Date();
+        const todayDay = today.getDay(); // 0 = Sunday, 1 = Monday...
+        let targetDay = dayMap[dayKey];
+        let diff = targetDay - todayDay;
+        if (diff < 0) diff += 7; // sledeći taj dan u nedelji
+        const result = new Date(today);
+        result.setDate(today.getDate() + diff);
+        return result.toISOString().split("T")[0]; // vraća yyyy-mm-dd
+    }
+
+
     async function loadLines() {
         try {
             setLoadingLines(true);
@@ -40,11 +70,19 @@ export default function TripForm({ onClose, onAddSuccess }) {
         } finally { setLoadingLines(false); }
     }
 
+    // function toggleDay(key) {
+    //     setForm(prev => ({ ...prev, days: { ...prev.days, [key]: !prev.days[key] } }));
+    //     // ensure departures array exists
+    //     setForm(prev => ({ ...prev, departures: { ...prev.departures, [key]: prev.departures?.[key] || [] } }));
+    // }
     function toggleDay(key) {
-        setForm(prev => ({ ...prev, days: { ...prev.days, [key]: !prev.days[key] } }));
-        // ensure departures array exists
-        setForm(prev => ({ ...prev, departures: { ...prev.departures, [key]: prev.departures?.[key] || [] } }));
+        setForm(prev => {
+            const newDays = { ...prev.days, [key]: !prev.days[key] };
+            const newDepartures = { ...prev.departures, [key]: prev.departures[key] || [] };
+            return { ...prev, days: newDays, departures: newDepartures };
+        });
     }
+
 
     function addDeparture(dayKey, time) {
         if (!time) return;
@@ -55,25 +93,54 @@ export default function TripForm({ onClose, onAddSuccess }) {
         setForm(prev => ({ ...prev, departures: { ...prev.departures, [dayKey]: prev.departures[dayKey].filter((_, i) => i !== idx) } }));
     }
 
+    // const handleSave = async () => {
+    //     setError(null);
+    //     if (!form.line_id) { setError("Izaberite liniju."); return; }
+    //     // collect days with times
+    //     const selectedDays = Object.keys(form.days).filter(k => form.days[k]);
+    //     if (!selectedDays.length) { setError("Izaberite bar jedan dan u nedelji."); return; }
+    //
+    //     setSaving(true);
+    //     try {
+    //         // backend design: if you have endpoint to create trips per line and day, call it accordingly
+    //         // We'll iterate selected days and create trips for each departure time.
+    //         for (const day of selectedDays) {
+    //             const times = form.departures[day] || [];
+    //             for (const t of times) {
+    //                 // backend expects payload shape — adapt as needed
+    //                 await axiosClient.post("/trip/add", {
+    //                     line_id: form.line_id,
+    //                     day_of_week: day,    // backend should accept this or map it
+    //                     departure_time: t
+    //                 });
+    //             }
+    //         }
+    //
+    //         onAddSuccess?.();
+    //         onClose();
+    //     } catch (err) {
+    //         console.error("save trips", err);
+    //         setError(err.response?.data?.message || err.message || "Greška pri snimanju putovanja");
+    //     } finally { setSaving(false); }
+    // };
+
     const handleSave = async () => {
         setError(null);
         if (!form.line_id) { setError("Izaberite liniju."); return; }
-        // collect days with times
+
         const selectedDays = Object.keys(form.days).filter(k => form.days[k]);
         if (!selectedDays.length) { setError("Izaberite bar jedan dan u nedelji."); return; }
 
         setSaving(true);
         try {
-            // backend design: if you have endpoint to create trips per line and day, call it accordingly
-            // We'll iterate selected days and create trips for each departure time.
             for (const day of selectedDays) {
+                const date = getNextDateForDay(day); // fiksni datum za taj dan
                 const times = form.departures[day] || [];
                 for (const t of times) {
-                    // backend expects payload shape — adapt as needed
                     await axiosClient.post("/trip/add", {
                         line_id: form.line_id,
-                        day_of_week: day,    // backend should accept this or map it
-                        departure_time: t
+                        service_date: date,
+                        scheduled_start_time: t
                     });
                 }
             }
@@ -83,8 +150,11 @@ export default function TripForm({ onClose, onAddSuccess }) {
         } catch (err) {
             console.error("save trips", err);
             setError(err.response?.data?.message || err.message || "Greška pri snimanju putovanja");
-        } finally { setSaving(false); }
+        } finally {
+            setSaving(false);
+        }
     };
+
 
     return (
         <div>
@@ -114,11 +184,22 @@ export default function TripForm({ onClose, onAddSuccess }) {
                     <div key={w.key} style={{ marginBottom: 12, border: "1px dashed #E5E7EB", padding: 8, borderRadius: 8 }}>
                         <div style={{ fontWeight: 600 }}>{w.label}</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
-                            <input type="time" id={`time-${w.key}`} />
+                            {/*<input type="time" id={`time-${w.key}`} />*/}
+                            <input
+                                type="time"
+                                value={currentTimes[w.key] || ""}
+                                onChange={(e) => setCurrentTimes(prev => ({ ...prev, [w.key]: e.target.value }))}
+                            />
+                            {/*<button type="button" onClick={() => {*/}
+                            {/*    const input = document.getElementById(`time-${w.key}`);*/}
+                            {/*    addDeparture(w.key, input?.value);*/}
+                            {/*    if (input) input.value = "";*/}
+                            {/*}}>Dodaj polazak</button>*/}
                             <button type="button" onClick={() => {
-                                const input = document.getElementById(`time-${w.key}`);
-                                addDeparture(w.key, input?.value);
-                                if (input) input.value = "";
+                                const time = currentTimes[w.key];
+                                if (!time) return;
+                                addDeparture(w.key, time);
+                                setCurrentTimes(prev => ({ ...prev, [w.key]: "" })); // očisti input
                             }}>Dodaj polazak</button>
                         </div>
 

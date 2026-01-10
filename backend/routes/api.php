@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+})->middleware('auth:sanctum');//middleware se izvrsava pre kontrolera
+Route::post('/login', [AuthController::class, 'login']);//postman ok
+Route::post('/register', [AuthController::class, 'register']);//postman ok
 
 
 Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function () {
-    Route::get("/me",[AuthController::class, 'me']);
+    Route::get("/me",[AuthController::class, 'me']);//postman ok
 
 
 
@@ -29,13 +29,13 @@ Route::middleware(['auth:sanctum','role:admin,operator,user'])->group(function (
 
 
     // --- Stanice (Stations) ---
-    Route::get("/station/{stationid}", [\App\Http\Controllers\StationController::class, 'show']);
+    Route::get("/station/search", [\App\Http\Controllers\StationController::class, 'searchStations']);
     Route::get("/station/code/{code}", [\App\Http\Controllers\StationController::class, 'showByCode']);
     Route::get("/station/address/{address}", [\App\Http\Controllers\StationController::class, 'showByAddress']);
     Route::get("/station/name/{name}", [\App\Http\Controllers\StationController::class, 'showByName']);
-    Route::get("/station/search/{search}", [\App\Http\Controllers\StationController::class, 'searchStations']);
     Route::get("/stations",[\App\Http\Controllers\StationController::class, 'index']);
     Route::get("/stations/all",[\App\Http\Controllers\StationController::class, 'allStations']);
+    Route::get("/station/{stationid}", [\App\Http\Controllers\StationController::class, 'show']);
 
 
     // --- Putovanja (Trips) ---
@@ -86,7 +86,7 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::get("/operators", [\App\Http\Controllers\UserController::class, 'getAllOperators']);
 
     // --- Linije (Lines) ---
-    Route::post('/line/add', [\App\Http\Controllers\LineController::class, 'stBrisore']);
+    Route::post('/line/add', [\App\Http\Controllers\LineController::class, 'store']);
     Route::put('/line/update/{line}', [\App\Http\Controllers\LineController::class, 'update']);
     Route::delete('/line/delete/{line}', [\App\Http\Controllers\LineController::class, 'destroy']);
 
@@ -118,5 +118,5 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::delete('/vehicle_positions/{vehiclePosition}', [VehiclePositionController::class, 'destroy']);
 });
 Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
+    return response()->json(['status' => 'ok']); //PROVEREN KROZ POSTMAN
 });

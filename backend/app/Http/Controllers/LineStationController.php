@@ -26,7 +26,9 @@ class LineStationController extends Controller
         $direction = $request->query('direction');
         $stations = $this->service->getStationsForLine($line, $direction);
 
-        return response()->json(['stations' => StationResource::collection($stations)], 200);
+//        return response()->json(['stations' => StationResource::collection($stations)], 200);
+        return StationResource::collection($stations);
+
     }
     public function showLinesForStation($stationId){
         $lines=$this->service->getLinesForStation($stationId);

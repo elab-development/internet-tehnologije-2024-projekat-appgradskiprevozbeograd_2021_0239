@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class TripService
 {
-    public function addTrip(array $request):Trip
+    public function addTrip(array $data):Trip
     {
         return Trip::create([
-            'line_id'=>request('line_id'),
-            'service_date'=>request('service_date'),
-            'scheduled_start_time'=>request('scheduled_start_time'),
-            'status'=>request('status')
+            'line_id'=>$data['line_id'],
+            'service_date'=>$data['service_date'],
+            'scheduled_start_time'=>$data['scheduled_start_time'],
+            'status'=>$data['status']
 
         ]);
     }

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-import { fetchAllStations } from "../../api/user.js";
+import { fetchAllStations, searchStations } from "../../api/user.js";
 
 const initialSelectedStation = {
     id: 0,
@@ -26,34 +26,35 @@ export default function StationsTab({
 
     const { current_page: currentPage, last_page: lastPage } = paginationData;
 
+    // --- FUNKCIJA ZA UČITAVANJE STANICA ---
     const loadStations = useCallback(
         async (pageToLoad = 1, query = "") => {
             setLoading(true);
             setError(null);
             try {
-                const result = await fetchAllStations(pageToLoad, query);
+                if (query && query.length > 0) {
+                    // SEARCH – full search po svim stanicama
+                    const stations = await searchStations(query);
+                    console.log("Rezultati pretrage sa bekenda:", stations); // DODAJ OVO
+                    setStations(stations);
+                    setPaginationData({ current_page: 1, last_page: 1, total: stations.length });
 
-                if (!result || !Array.isArray(result.data)) {
-                    throw new Error("Neispravan format podataka sa servera.");
+                    if (stations.length > 0) setSelectedStation(stations[0]);
+                    else setSelectedStation(initialSelectedStation);
+                } else {
+                    // REGULARNA LISTA – paginacija
+                    const result = await fetchAllStations(pageToLoad);
+                    const newStations = result.data;
+                    setStations(prev => pageToLoad === 1 ? newStations : [...prev, ...newStations]);
+                    setPaginationData({
+                        current_page: result.meta.current_page,
+                        last_page: result.meta.last_page,
+                        total: result.meta.total,
+                    });
+
+                    if (newStations.length > 0 && pageToLoad === 1) setSelectedStation(newStations[0]);
+                    else if (pageToLoad === 1) setSelectedStation(initialSelectedStation);
                 }
-
-                const newStations = result.data;
-
-                // Dodavanje novih stanica u postojeću listu
-                setStations(prev => pageToLoad === 1 ? newStations : [...prev, ...newStations]);
-
-                setPaginationData({
-                    current_page: result.meta.current_page,
-                    last_page: result.meta.last_page,
-                    total: result.meta.total,
-                });
-
-                if (newStations.length > 0 && pageToLoad === 1 && !isSearchActive) {
-                    setSelectedStation(newStations[0]);
-                } else if (pageToLoad === 1 && newStations.length === 0) {
-                    setSelectedStation(initialSelectedStation);
-                }
-
             } catch (err) {
                 console.error("Greška pri dohvatu stanica:", err);
                 setError("Neuspešno učitavanje stanica. Pokušajte ponovo.");
@@ -61,25 +62,24 @@ export default function StationsTab({
                 setLoading(false);
             }
         },
-        [setStations, setSelectedStation, isSearchActive]
+        [setStations, setSelectedStation]
     );
 
-    // Prvi load ili pretraga
+    // --- useEffect sa async funkcijom ---
     useEffect(() => {
-        if (isSearchActive) {
-            loadStations(1, searchQuery);
-        } else if (currentStations.length === 0 && paginationData.total === 0) {
-            loadStations(1);
-        }
-    }, [isSearchActive, searchQuery, currentStations.length, paginationData.total, loadStations]);
+        const fetchStations = async () => {
+            await loadStations(1, isSearchActive ? searchQuery : "");
+        };
+        fetchStations();
+    }, [isSearchActive, searchQuery, loadStations]);
 
-    const handleLoadMore = () => {
+    // --- Dugme "Prikaži više" ---
+    const handleLoadMore = async () => {
         if (currentPage < lastPage) {
-            loadStations(currentPage + 1, searchQuery);
+            await loadStations(currentPage + 1);
         }
     };
 
-    // Da li prikazati dugme "Prikaži više"
     const showLoadMore = !isSearchActive && currentStations.length >= 5 && currentPage < lastPage;
 
     return (
@@ -93,7 +93,6 @@ export default function StationsTab({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {loading && !isSearchActive && <div>Učitavanje...</div>}
                 {error && <div style={{ color: '#EF4444', fontWeight: '600' }}>Greška: {error}</div>}
-
                 {(!loading && Array.isArray(currentStations) && currentStations.length === 0 && !error) &&
                     <div>Nema stanica</div>
                 }

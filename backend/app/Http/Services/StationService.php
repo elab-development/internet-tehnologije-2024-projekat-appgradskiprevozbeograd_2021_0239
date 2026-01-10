@@ -52,13 +52,42 @@ class StationService
     public function deleteStation(Station $station):bool{
         return $station->delete();
     }
-    public function searchStations(string $search,int $perPage):LengthAwarePaginator{
-        $search=trim(preg_replace('/\s+/', ' ', $search));
-        $query=Station::query();
-        if($search!==''){
-            $query->whereRaw('LOWER(stop_code) LIKE ?', [ mb_strtolower($search) . '%'])
-            ->orWhereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%']);
+//    public function searchStations(string $search,int $perPage):LengthAwarePaginator{
+//        $search=trim(preg_replace('/\s+/', ' ', $search));
+//        $query=Station::query();
+//        if($search!==''){
+//            $query->whereRaw('LOWER(stop_code) LIKE ?', [ mb_strtolower($search) . '%'])
+//            ->orWhereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%']);
+//        }
+//        return $query->paginate($perPage);
+//    }
+//    public function searchStations(string $search)
+//    {
+//        $search = trim(preg_replace('/\s+/', ' ', $search));
+//        $query = Station::query();
+//
+//        if ($search !== '') {
+//            $query->whereRaw('LOWER(stop_code) LIKE ?', [ mb_strtolower($search) . '%'])
+//                ->orWhereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%'])
+//                ->orWhereRaw('LOWER(address) LIKE ?', ['%' . mb_strtolower($search) . '%']);
+//        }
+//
+//        // Vraćamo sve rezultate bez paginacije
+//        return $query->get();
+//    }
+
+
+    public function searchStationsAll(string $search): \Illuminate\Support\Collection {
+        $search = trim(preg_replace('/\s+/', ' ', $search));
+        $query = Station::query();
+
+        if ($search !== '') {
+            $query->whereRaw('LOWER(stop_code) LIKE ?', [mb_strtolower($search) . '%'])
+                ->orWhereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($search) . '%'])
+                ->orWhereRaw('LOWER(address) LIKE ?', ['%' . mb_strtolower($search) . '%']);
         }
-        return $query->paginate($perPage);
+
+        return $query->get(); // vraća sve rezultate
     }
+
 }

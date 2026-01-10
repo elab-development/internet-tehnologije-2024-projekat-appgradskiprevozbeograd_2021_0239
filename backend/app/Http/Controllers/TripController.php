@@ -48,7 +48,12 @@ class TripController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors(),400);
         }
-        $trip=$this->tripService->addTrip($request->toArray());
+
+        $data = $request->all();
+        if (!isset($data['status'])) {
+            $data['status'] = 'scheduled';
+        }
+        $trip=$this->tripService->addTrip($data);
         return response()->json(["trip"=>new TripResource($trip),"message"=>"Trip added successfully"],201);
 
     }

@@ -36,14 +36,23 @@ export default function StationsList({ api }) {
             const d = res.data;
 
             // Case A: Laravel paginator wrapper: res.data.data is object with .data array and meta
-            if (d && d.data && Array.isArray(d.data.data)) {
-                // Example: { data: { data: [...], current_page, last_page, total } }
-                const pageData = d.data.data;
-                setStations(pageData);
+            // if (d && d.data && Array.isArray(d.data.data)) {
+            //     // Example: { data: { data: [...], current_page, last_page, total } }
+            //     const pageData = d.data.data;
+            //     setStations(pageData);
+            //     setServerPagination(true);
+            //     setPage(d.data.current_page || p);
+            //     setTotalPages(d.data.last_page || Math.ceil((d.data.total || pageData.length) / PAGE_SIZE));
+            //     setTotalItems(d.data.total || pageData.length);
+            //     return;
+            // }
+
+            if (d && Array.isArray(d.data) && d.meta) {
+                setStations(d.data);
                 setServerPagination(true);
-                setPage(d.data.current_page || p);
-                setTotalPages(d.data.last_page || Math.ceil((d.data.total || pageData.length) / PAGE_SIZE));
-                setTotalItems(d.data.total || pageData.length);
+                setPage(d.meta.current_page);
+                setTotalPages(d.meta.last_page);
+                setTotalItems(d.meta.total);
                 return;
             }
 

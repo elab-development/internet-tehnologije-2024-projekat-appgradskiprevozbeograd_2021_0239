@@ -124,13 +124,19 @@ class StationController extends Controller
         }
         return response()->json(['stations'=>StationResource::collection($stations),'message'=>"Stations finded successfully"],200);
     }
-    public function searchStations( $search){
+    public function searchStations(Request $request) { // DODAJ 'Request' ovde
+        $search = $request->query('q', '');
 
-        $stations=$this->stationService->searchStations($search,5);
-        if($stations->isEmpty()){
-            return response()->json(["message"=>"Station not found"],404);
-        }
-        return response()->json(['stations'=>StationResource::collection($stations),'message'=>"Stations founded successfully"],200);
+        // Debug: proveri da li search uopšte stiže do kontrolera
+        // \Log::info('Pretraga započeta za: ' . $search);
+
+        $stations = $this->stationService->searchStationsAll($search);
+
+        // Vrati 200 prazan niz umesto 404, da React ne bi bacao Error
+        return response()->json([
+            'stations' => StationResource::collection($stations),
+            'message' => "Search completed"
+        ], 200);
     }
 
     /**

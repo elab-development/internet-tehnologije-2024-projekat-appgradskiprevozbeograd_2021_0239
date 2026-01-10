@@ -14,7 +14,7 @@ export default function StopsEditor({ line, onCancel, onSaved }) {
     async function loadStations() {
         try {
             setLoadingStations(true);
-            const res = await axiosClient.get("/stations");
+            const res = await axiosClient.get("/stations/all");
             // try common payload structures
             const payload = Array.isArray(res.data) ? res.data : (res.data?.stations || res.data?.data || []);
             setAllStations(payload || []);

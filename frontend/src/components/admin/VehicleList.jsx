@@ -165,7 +165,14 @@ export default function VehiclesList() {
                         </div>
 
                         <div style={{ display: 'flex', gap: 8 }}>
-                            <button style={{ padding: 8 }} title="Izmeni"><Edit style={{ width: 20, height: 20 }} /></button>
+                            <button
+                                style={{ padding: 8 }}
+                                title="Izmeni"
+                                onClick={() => openEdit(vehicle)}
+                            >
+                                <Edit style={{ width: 20, height: 20 }} />
+                            </button>
+                            {/*<button style={{ padding: 8 }} title="Izmeni"><Edit style={{ width: 20, height: 20 }} /></button>*/}
                             <button style={{ padding: 8 }} title="Obriši" onClick={() => handleDelete(vehicle.id)}><Trash2 style={{ width: 20, height: 20 }} /></button>
                         </div>
                     </div>
