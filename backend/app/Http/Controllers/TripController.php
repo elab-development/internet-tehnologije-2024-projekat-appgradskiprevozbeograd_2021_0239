@@ -14,10 +14,12 @@ class TripController extends Controller
 {
     protected TripService $tripService;
     protected LineService $lineService;
-    public function __construct(TripService $tripService,LineService $lineService){
+    public function __construct(TripService $tripService, LineService $lineService){
         $this->tripService = $tripService;
-        $this->lineService = new LineService();
+        $this->lineService = $lineService;
+        //line service pravio novi(new)
     }
+
     /**
      * Display a listing of the resource.
      */

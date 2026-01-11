@@ -7,7 +7,6 @@ use App\Http\Services\LineService;
 use App\Models\Line;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use function PHPUnit\Framework\isEmpty;
 
 class LineController extends Controller
 {

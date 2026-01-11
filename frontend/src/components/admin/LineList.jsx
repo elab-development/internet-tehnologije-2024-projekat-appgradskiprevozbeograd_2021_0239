@@ -71,10 +71,27 @@ export default function LineList() {
         if (!window.confirm('Obriši liniju?')) return;
         try {
             await axiosClient.delete(`/line/delete/${id}`);
-            setLines(prev => prev.filter(l => l.id !== id));
+            // setLines(prev => prev.filter(l => l.id !== id));
+            loadLines();
         } catch (err) {
             console.error('delete error', err);
             alert('Neuspeh pri brisanju');
+        }
+    }
+
+    async function loadLines() {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await axiosClient.get('/lines');
+            const arr = extractArrayFromResponse(res);
+            setLines(arr || []);
+        } catch (err) {
+            console.error('LineList load error', err);
+            setError(err);
+            setLines([]);
+        } finally {
+            setLoading(false);
         }
     }
 

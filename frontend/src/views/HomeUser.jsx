@@ -204,7 +204,9 @@ export default function HomeUser(){
                                 setSelectedStation={setSelectedStation}
                                 currentStations={displayedStations}
                                 setStations={setStations}
-                                isSearchingActive={isSearching||searchQuery.length> 0}
+                                isSearchActive={searchQuery.trim().length > 0}
+                                searchQuery={searchQuery}
+                                // isSearchingActive={isSearching||searchQuery.length> 0}
                             />
                         )}
                         {

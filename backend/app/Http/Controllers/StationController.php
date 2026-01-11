@@ -108,7 +108,8 @@ class StationController extends Controller
         if($stations->isEmpty()){
             return response()->json(["message"=>"Station not found"],404);
         }
-        return response()->json(['station'=> StationResource::collection($stations),'message'=>"Stations finded successfully"],200);
+        //promenio iz station u stations
+        return response()->json(['stations'=> StationResource::collection($stations),'message'=>"Stations finded successfully"],200);
     }
     public function showByCode($code){
         $stations=$this->stationService->getStationsByStopCode($code,5);
