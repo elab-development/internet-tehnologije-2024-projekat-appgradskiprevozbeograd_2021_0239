@@ -67,9 +67,12 @@ export default function HomeOperator() {
                     setLongitude(lng);
 
                     try {
-                        await axiosClient.put(`/vehicle_positions/${selectedVehicle.id}`, {
+                        await axiosClient.post(`/vehicle_positions`, {
+                            vehicle_id: selectedVehicle.id,
+                            line_id: selectedVehicle.line_id ?? selectedVehicle.line?.id,
                             latitude: lat,
                             longitude: lng,
+                            timestamp: new Date().toISOString(),
                         });
                         setUpdateSuccess(true);
                         setTimeout(() => setUpdateSuccess(false), 3000);

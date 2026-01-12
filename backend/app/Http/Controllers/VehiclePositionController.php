@@ -7,6 +7,7 @@ use App\Http\Resources\VehicleResource;
 use App\Http\Services\VehiclePositionService;
 use App\Http\Services\VehicleService;
 use App\Models\VehiclePosition;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class VehiclePositionController extends Controller
@@ -22,7 +23,7 @@ class VehiclePositionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'vehicle_id' => 'required|exists:vehicles,id',
             'line_id' => 'required|exists:lines,id',
             'latitude' => 'required|numeric',
@@ -30,8 +31,13 @@ class VehiclePositionController extends Controller
             'timestamp' => 'required|date'
         ]);
 
-        $position = $this->positionService->addPosition($request->toArray());
-        return response()->json(['position' => new VehiclePositionResource($position), 'message' => 'Position added successfully'], 201);
+        $data['timestamp'] = isset($data['timestamp'])
+            ? Carbon::parse($data['timestamp']) -> toDateTimeString()
+            : now() -> toDateTimeString();
+
+        $position = $this->positionService->addPosition($data);
+        return response()->json(['position' => new VehiclePositionResource($position),
+            'message' => 'Position added successfully'], 201);
     }
 
     public function show($positionId)
